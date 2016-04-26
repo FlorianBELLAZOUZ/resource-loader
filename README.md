@@ -1,4 +1,4 @@
-# Resource Loader [![Build Status](https://travis-ci.org/englercj/resource-loader.svg?branch=master)](https://travis-ci.org/englercj/resource-loader)
+# Resource Loader
 
 A generic resource loader, made with web games in mind.
 
