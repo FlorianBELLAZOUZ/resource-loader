@@ -232,9 +232,7 @@ Loader.prototype.add = Loader.prototype.enqueue = function (name, url, options, 
     }
 
     // check if resource already exists.
-    if (this.resources[name]) {
-        throw new Error('Resource with name "' + name + '" already exists.');
-    }
+    if (this.resources[name]) return;
 
     // add base url if this isn't an absolute url
     url = this._handleBaseUrl(url);
@@ -351,12 +349,14 @@ Loader.prototype.load = function (cb) {
     if (typeof cb === 'function') {
         this.once('complete', cb);
     }
-
+    
+    if(this._queue.length() == 0) this.emit('complete')
+     
     // if the queue has already started we are done here
     if (this._queue.started) {
         return this;
     }
-
+    
     // notify of start
     this.emit('start', this);
 
@@ -417,18 +417,18 @@ Loader.prototype._onLoad = function (resource) {
         resource.emit('afterMiddleware', resource);
 
         this._numToLoad--;
-
+        
+        // do completion check
+        if (this._numToLoad === 0) {
+            this.progress = 100;
+            this._onComplete();
+        }
+        
         if (resource.error) {
             this.emit('error', resource.error, this, resource);
         }
         else {
             this.emit('load', this, resource);
-        }
-
-        // do completion check
-        if (this._numToLoad === 0) {
-            this.progress = 100;
-            this._onComplete();
         }
     });
     
